@@ -427,11 +427,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     private List<MediaBrowserCompat.MediaItem> loadChildrenSynchronous(@NonNull String parentId) {
         List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
         if (parentId.equals(getResources().getString(R.string.app_name))) {
-            long currentlyPlaying = PlaybackPreferences.getCurrentPlayerStatus();
-            if (currentlyPlaying == PlaybackPreferences.PLAYER_STATUS_PLAYING
-                    || currentlyPlaying == PlaybackPreferences.PLAYER_STATUS_PAUSED) {
-                mediaItems.add(createBrowsableMediaItem(R.string.current_playing_episode, R.drawable.ic_play_48dp, 1));
-            }
             mediaItems.add(createBrowsableMediaItem(R.string.queue_label, R.drawable.ic_playlist_play_black,
                     DBReader.getTotalEpisodeCount(new FeedItemFilter(FeedItemFilter.QUEUED))));
             mediaItems.add(createBrowsableMediaItem(R.string.downloads_label, R.drawable.ic_download_black,
@@ -459,13 +454,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         } else if (parentId.startsWith("FeedId:")) {
             long feedId = Long.parseLong(parentId.split(":")[1]);
             feedItems = DBReader.getFeed(feedId, true, 0, MAX_ANDROID_AUTO_EPISODES_PER_FEED).getItems();
-        } else if (parentId.equals(getString(R.string.current_playing_episode))) {
-            FeedMedia playable = DBReader.getFeedMedia(PlaybackPreferences.getCurrentlyPlayingFeedMediaId());
-            if (playable != null) {
-                feedItems = Collections.singletonList(playable.getItem());
-            } else {
-                return null;
-            }
         } else {
             Log.e(TAG, "Parent ID not found: " + parentId);
             return null;
